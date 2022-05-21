@@ -21,12 +21,13 @@ const project = new javascript.NodeProject({
       { dependencyName: 'web-vitals' },
       { dependencyName: 'jest*' },
       { dependencyName: '@testing-library/*' },
+      { dependencyName: '@types/*' },
     ]
   }
 });
 
 const component = new web.ReactComponent(project, {
-  typescript: false,
+  typescript: true,
 });
 
 project.synth();
