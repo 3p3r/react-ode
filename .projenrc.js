@@ -1,5 +1,8 @@
 const path = require('path');
+const assert = require('assert');
 const projen = require('projen');
+
+const MAX_SHELL_COMMAND_CHARACTERS = 4096 - 1; // "1" for terminating new line
 
 class ReactODEProject extends projen.Project {
   /** @param {projen.github.GitHubProjectOptions} options */
@@ -60,24 +63,26 @@ class ReactODEProject extends projen.Project {
   }
 
   /**
-   * converts a javascript function to something "defaultTask.exec" understands.
+   * turns a javascript function into a shell command so it's executable in any shell.
+   * @note due to shell limitations, output string cannot exceed 4095 characters.
    * @note the passed function cannot use anything outside its own scope.
-   * @note there is a limit to how many characters long a function is.
    * @param {Function} func contained function logic for a exec step.
-   * @param  {...string} args variadic arguments passed to "func".
-   * @returns {string} something "defaultTask.exec" understands.
+   * @param  {...string} args variadic string args passed to "func".
+   * @returns {string} shell command starting with "node -e"
    */
-  script = (func, ...args) =>
-    `node -e "atob=i=>Buffer.from(i,'base64').toString('utf8');eval('('+atob('${this.btoa(func.toString())}')+')(${args
-      .map((arg) => `\\\`'+atob('${this.btoa(arg)}')+'\\\``)
-      .join(',')})')"`;
-
-  /**
-   * btoa() encodes string to base64
-   * @param {string} input
-   * @returns base64 encoded string
-   */
-  btoa = (input) => Buffer.from(input).toString('base64');
+  script = (func, ...args) => {
+    const funcBody = func.toString();
+    const funcEncoded = btoa(funcBody);
+    const argsList = args.map((arg) => `\\\`'+atob('${btoa(arg)}')+'\\\``);
+    const argsEncoded = argsList.join(',');
+    const expTemplate = `node -e "atob=i=>Buffer.from(i,'base64').toString('utf8');eval('('+atob('X')+')(Y)')"`;
+    const expTemplateLength = expTemplate.length - 2; // XY
+    assert.ok(
+      MAX_SHELL_COMMAND_CHARACTERS >= expTemplateLength + funcEncoded.length + argsEncoded.length,
+      `script "${funcBody}" too large, break up your logic into smaller functions, cleanup projen and resynth.`
+    );
+    return expTemplate.replace("atob('X')+')(Y)", `atob('${funcEncoded}')+')(${argsEncoded})`);
+  };
 
   /** resets the default task and makes sure projen only runs once */
   prepareDefaultTask() {
@@ -95,6 +100,13 @@ class ReactODEProject extends projen.Project {
     this.tryRemoveFile('.gitignore');
   }
 }
+
+/**
+ * encodes string to base64
+ * @param {string} input raw input
+ * @returns base64 encoded string output
+ */
+const btoa = (input) => Buffer.from(input).toString('base64');
 
 const RAZZLE_DEFAULT_CONFIG_JS = `\
 'use strict';
