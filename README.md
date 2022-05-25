@@ -1,19 +1,36 @@
 # react-ode
 
-Online Development Environment in React
+Online Development Environment (ODE) in React
 
-## re-scaffolding
+## install
 
-this project uses [`projen`](https://projen.io/) for scaffolding.
-
-to rescaffold a new empty project like this one, you need [`projen`](https://projen.io/).
-
-copy _only_ the `.projenrc.js` file into a new empty directory and run:
+if you are not already in a react app, you can create a new one with:
 
 ```bash
-npx projen
+npx create-react-app my-react-app
 ```
 
-This should give you a `.projen` directory and initializes `projen` in your new directory.
+inside your react project, install peer dependencies first:
 
-Run `npx projen` again to scaffold your new directory exactly like this repository is set up.
+```bash
+npm i @monaco-editor/react xterm memfs @mui/material @emotion/react @emotion/styled
+```
+
+then finally:
+
+```bash
+npm i react-ode
+```
+
+## mission
+
+goal of this project is offering a lightweight and embeddable vscode as a react component.
+
+it does so by offering a rich api over the combination of the following technologies:
+
+- [Monaco Editor](https://www.npmjs.com/package/@monaco-editor/react): to handle the main editor user interface
+- [Material UI](https://mui.com/material-ui/getting-started/installation): to handle non-editor user interface
+- [memfs](https://github.com/streamich/memfs): to handle a virtualized filesystem for the editor
+- [xterm.js](https://xtermjs.org): to handle rendering a virtualized shell terminal
+
+this is a visual component only, and only meant to be embedded in higher order components and projects to build rich experiences.
