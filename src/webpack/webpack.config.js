@@ -17,9 +17,9 @@ module.exports = {
           to: 'package.json',
           transform(content) {
             const packageJson = JSON.parse(content.toString('utf8'));
-            packageJson.peerDependencies = packageJson.dependencies;
             delete packageJson.scripts;
-            delete packageJson.dependencies;
+            delete packageJson.eslintConfig;
+            delete packageJson.browserslist;
             delete packageJson.devDependencies;
             return Buffer.from(JSON.stringify(packageJson, null, 2));
           },
