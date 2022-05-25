@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
-import Unused from './Unused';
+import Workspace from './Workspace';
 
 test('renders without blowing up', () => {
-  render(<Unused label='test' />);
+  render(<Workspace />);
 });
