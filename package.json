@@ -54,6 +54,8 @@
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
     "@monaco-editor/react": "^4.4.5",
+    "@mui/icons-material": "^5.8.0",
+    "@mui/lab": "^5.0.0-alpha.83",
     "@mui/material": "^5.8.1",
     "@storybook/addon-actions": "^6.5.5",
     "@storybook/addon-essentials": "^6.5.5",
@@ -73,15 +75,16 @@
     "re-resizable": "^6.9.9",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
+    "react-resize-detector": "^7.1.1",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4",
     "webpack": "^5.72.1",
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.9.0",
     "webpack-node-externals": "^3.0.0",
-    "xterm": "^4.18.0"
-  },
-  "dependencies": {
-    "react-sizeme": "^3.0.2"
+    "xterm": "^4.18.0",
+    "xterm-addon-fit": "^0.5.0",
+    "xterm-addon-web-links": "^0.5.1",
+    "xterm-addon-webgl": "^0.11.4"
   }
 }

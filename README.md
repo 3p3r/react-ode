@@ -2,6 +2,8 @@
 
 Online Development Environment (ODE) in React
 
+![demo screenshot](demo.png)
+
 ## install
 
 if you are not already in a react app, you can create a new one with:

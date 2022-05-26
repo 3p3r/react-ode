@@ -1,7 +1,14 @@
 import React from 'react';
+import { default as MonacoEditor } from '@monaco-editor/react';
 
 export default class Editor extends React.Component {
   render() {
-    return <span>{this.constructor.name}</span>;
+    return (
+      <MonacoEditor
+        theme="vs-dark"
+        defaultLanguage="javascript"
+        defaultValue="// react-ode"
+      />
+    );
   }
 }

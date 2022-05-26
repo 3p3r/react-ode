@@ -1,10 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { SizeMe } from 'react-sizeme';
 import { Resizable } from 're-resizable';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Console, ConsoleTabs, Editor, EditorTabs, Explorer, Header, Nav, Status } from './workspace';
+import ReactResizeDetector from 'react-resize-detector';
 
 import './Workspace.css';
+
+const theme = createTheme({
+  palette: { mode: 'dark' },
+  typography: { fontFamily: ['monospace'] },
+});
 
 export default class Workspace extends React.Component {
   static propTypes = {
@@ -23,65 +29,67 @@ export default class Workspace extends React.Component {
 
   render() {
     return (
-      <div className="ode-main ode-border" style={{ width: this.props.w, height: this.props.h }}>
-        <div className="ode-header ode-border" style={{ height: this.props.tabSize }}>
-          <Header />
-        </div>
-        <div className="ode-wrapper">
-          <div className="ode-sidebar ode-border" style={{ width: this.props.navSize }}>
-            <Nav />
+      <ThemeProvider theme={theme}>
+        <div className="ode-main ode-border" style={{ width: this.props.w, height: this.props.h }}>
+          <div className="ode-header ode-border" style={{ height: this.props.tabSize }}>
+            <Header />
           </div>
           <div className="ode-wrapper">
-            <SizeMe monitorHeight>
-              {({ size }) => (
-                <div style={{ width: '100%', height: size.height, display: 'flex', overflow: 'hidden' }}>
-                  <Resizable
-                    className="ode-border"
-                    defaultSize={{ width: '25%', height: '100%' }}
-                    maxWidth="100%"
-                    minWidth="1"
-                    enable={ENABLE_RIGHT_SIDE}
-                  >
-                    <Explorer />
-                  </Resizable>
-                  <div className="ode-wh-100" style={{ minWidth: '1px' }}>
-                    <div className="ode-wh-100" style={{ display: 'flex', flexDirection: 'column' }}>
-                      <Resizable
-                        defaultSize={{ height: '60%' }}
-                        maxHeight="100%"
-                        minHeight="1"
-                        enable={ENABLE_BOTTOM_SIDE}
-                      >
-                        <div className="ode-wh-100" style={{ display: 'flex', flexDirection: 'column' }}>
-                          <div className="ode-w-100 ode-border" style={{ height: this.props.tabSize }}>
-                            <EditorTabs />
+            <div className="ode-sidebar ode-border" style={{ width: this.props.navSize }}>
+              <Nav />
+            </div>
+            <div className="ode-wrapper">
+              <ReactResizeDetector handleWidth handleHeight>
+                {({ width = '100%', height, targetRef }) => (
+                  <div ref={targetRef} style={{ width, height, display: 'flex', overflow: 'hidden' }}>
+                    <Resizable
+                      className="ode-border"
+                      defaultSize={{ width: '25%', height: '100%' }}
+                      maxWidth="90%"
+                      minWidth="10%"
+                      enable={ENABLE_RIGHT_SIDE}
+                    >
+                      <Explorer />
+                    </Resizable>
+                    <div className="ode-wh-100" style={{ minWidth: '1px' }}>
+                      <div className="ode-wh-100 ode-main">
+                        <Resizable
+                          defaultSize={{ height: '60%' }}
+                          maxHeight="90%"
+                          minHeight="10%"
+                          enable={ENABLE_BOTTOM_SIDE}
+                        >
+                          <div className="ode-wh-100 ode-main">
+                            <div className="ode-w-100 ode-border" style={{ height: this.props.tabSize }}>
+                              <EditorTabs />
+                            </div>
+                            <div className="ode-wh-100 ode-border">
+                              <Editor />
+                            </div>
                           </div>
-                          <div className="ode-wh-100 ode-border">
-                            <Editor />
-                          </div>
-                        </div>
-                      </Resizable>
-                      <div className="ode-h-100" style={{ minHeight: '1px' }}>
-                        <div className="ode-wh-100" style={{ display: 'flex', flexDirection: 'column' }}>
-                          <div className="ode-w-100 ode-border" style={{ height: this.props.tabSize }}>
-                            <ConsoleTabs />
-                          </div>
-                          <div className="ode-w-100 ode-border" style={{ height: '100%' }}>
-                            <Console />
+                        </Resizable>
+                        <div className="ode-h-100" style={{ minHeight: '1px' }}>
+                          <div className="ode-wh-100 ode-main">
+                            <div className="ode-w-100 ode-border" style={{ height: this.props.tabSize }}>
+                              <ConsoleTabs />
+                            </div>
+                            <div className="ode-w-100 ode-border" style={{ height: '100%' }}>
+                              <Console />
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </SizeMe>
+                )}
+              </ReactResizeDetector>
+            </div>
+          </div>
+          <div className="ode-border" style={{ height: this.props.tabSize }}>
+            <Status />
           </div>
         </div>
-        <div className="ode-border" style={{ height: this.props.tabSize }}>
-          <Status />
-        </div>
-      </div>
+      </ThemeProvider>
     );
   }
 }
