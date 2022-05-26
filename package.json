@@ -2,7 +2,7 @@
   "name": "react-ode",
   "private": false,
   "version": "1.0.0",
-  "description": "online development environment in react",
+  "description": "Embeddable online development environment in react",
   "scripts": {
     "start": "npm run storybook",
     "build": "webpack --config src/webpack/webpack.config.js",
