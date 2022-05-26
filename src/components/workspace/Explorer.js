@@ -4,11 +4,16 @@ import TreeView from '@mui/lab/TreeView';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TreeItem from '@mui/lab/TreeItem';
+import { css } from '@emotion/react';
+
+const styles = css`
+  height: 100%;
+`;
 
 export default class Explorer extends React.Component {
   render() {
     return (
-      <Box sx={{ bgcolor: 'background.default', color: 'text.primary' }} className="ode-wh-100">
+      <Box css={styles} sx={{ bgcolor: 'background.default', color: 'text.primary' }}>
         <TreeView
           aria-label="file system navigator"
           defaultCollapseIcon={<ExpandMoreIcon />}

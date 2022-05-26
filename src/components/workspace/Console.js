@@ -4,9 +4,19 @@ import { FitAddon } from 'xterm-addon-fit';
 import { WebglAddon } from 'xterm-addon-webgl';
 import { WebLinksAddon } from 'xterm-addon-web-links';
 import ReactResizeDetector from 'react-resize-detector';
+import { css } from '@emotion/react';
 
 import 'xterm/css/xterm.css';
-import './Console.css';
+
+const styles = css`
+  width: 100%;
+  height: 100%;
+  background: #000;
+
+  .xterm .xterm-viewport {
+    overflow-y: hidden !important;
+  }
+`;
 
 export default class Console extends React.Component {
   state = {
@@ -44,7 +54,7 @@ export default class Console extends React.Component {
     return (
       <ReactResizeDetector handleWidth handleHeight onResize={this.refit}>
         {({ width, height, targetRef }) => (
-          <div ref={targetRef} className="ode-xterm-wrapper ode-wh-100">
+          <div ref={targetRef} css={styles}>
             <div
               ref={this.handleConsoleRef}
               style={{ width: width - padding * 2, height: height - padding * 2, padding }}

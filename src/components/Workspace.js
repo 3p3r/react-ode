@@ -1,16 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { css } from '@emotion/react';
 import { Resizable } from 're-resizable';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Console, ConsoleTabs, Editor, EditorTabs, Explorer, Header, Nav, Status } from './workspace';
 import ReactResizeDetector from 'react-resize-detector';
 
-import './Workspace.css';
-
 const theme = createTheme({
   palette: { mode: 'dark' },
   typography: { fontFamily: ['monospace'] },
 });
+
+const styles = {
+  root: css({ display: 'flex', flexDirection: 'column', border: 0, margin: 0, padding: 0 }),
+  border: css({ border: '1px solid #000', boxSizing: 'border-box' }),
+  wrapper: css({ display: 'flex', overflow: 'hidden', flex: 1 }),
+  wh100: css({ width: '100%', height: '100%' }),
+  h100: css({ height: '100%' }),
+  w100: css({ width: '100%' }),
+};
 
 export default class Workspace extends React.Component {
   static propTypes = {
@@ -30,20 +38,20 @@ export default class Workspace extends React.Component {
   render() {
     return (
       <ThemeProvider theme={theme}>
-        <div className="ode-main ode-border" style={{ width: this.props.w, height: this.props.h }}>
-          <div className="ode-header ode-border" style={{ height: this.props.tabSize }}>
+        <div css={[styles.root, styles.border]} style={{ width: this.props.w, height: this.props.h }}>
+          <div css={styles.border} style={{ height: this.props.tabSize }}>
             <Header />
           </div>
-          <div className="ode-wrapper">
-            <div className="ode-sidebar ode-border" style={{ width: this.props.navSize }}>
+          <div css={styles.wrapper}>
+            <div css={styles.border} style={{ width: this.props.navSize }}>
               <Nav />
             </div>
-            <div className="ode-wrapper">
+            <div css={styles.wrapper}>
               <ReactResizeDetector handleWidth handleHeight>
-                {({ width = '100%', height, targetRef }) => (
-                  <div ref={targetRef} style={{ width, height, display: 'flex', overflow: 'hidden' }}>
+                {({ width = '100%', height = '100%', targetRef }) => (
+                  <div css={styles.wrapper} ref={targetRef} style={{ width, height }}>
                     <Resizable
-                      className="ode-border"
+                      css={styles.border}
                       defaultSize={{ width: '25%', height: '100%' }}
                       maxWidth="90%"
                       minWidth="10%"
@@ -51,29 +59,29 @@ export default class Workspace extends React.Component {
                     >
                       <Explorer />
                     </Resizable>
-                    <div className="ode-wh-100" style={{ minWidth: '1px' }}>
-                      <div className="ode-wh-100 ode-main">
+                    <div css={styles.wh100} style={{ minWidth: '10%' }}>
+                      <div css={[styles.wh100, styles.root]}>
                         <Resizable
                           defaultSize={{ height: '60%' }}
                           maxHeight="90%"
                           minHeight="10%"
                           enable={ENABLE_BOTTOM_SIDE}
                         >
-                          <div className="ode-wh-100 ode-main">
-                            <div className="ode-w-100 ode-border" style={{ height: this.props.tabSize }}>
+                          <div css={[styles.wh100, styles.root]}>
+                            <div css={[styles.w100, styles.border]} style={{ height: this.props.tabSize }}>
                               <EditorTabs />
                             </div>
-                            <div className="ode-wh-100 ode-border">
+                            <div css={[styles.wh100, styles.border]}>
                               <Editor />
                             </div>
                           </div>
                         </Resizable>
-                        <div className="ode-h-100" style={{ minHeight: '1px' }}>
-                          <div className="ode-wh-100 ode-main">
-                            <div className="ode-w-100 ode-border" style={{ height: this.props.tabSize }}>
+                        <div className="ode-h-100" style={{ minHeight: '10%' }}>
+                          <div css={[styles.wh100, styles.root]}>
+                            <div css={[styles.w100, styles.border]} style={{ height: this.props.tabSize }}>
                               <ConsoleTabs />
                             </div>
-                            <div className="ode-w-100 ode-border" style={{ height: '100%' }}>
+                            <div css={[styles.wh100, styles.border]}>
                               <Console />
                             </div>
                           </div>
@@ -85,7 +93,7 @@ export default class Workspace extends React.Component {
               </ReactResizeDetector>
             </div>
           </div>
-          <div className="ode-border" style={{ height: this.props.tabSize }}>
+          <div css={styles.border} style={{ height: this.props.tabSize }}>
             <Status />
           </div>
         </div>
@@ -104,5 +112,6 @@ const DISABLE_ALL_SIDES = {
   bottomLeft: false,
   topLeft: false,
 };
+
 const ENABLE_RIGHT_SIDE = { ...DISABLE_ALL_SIDES, right: true };
 const ENABLE_BOTTOM_SIDE = { ...DISABLE_ALL_SIDES, bottom: true };
