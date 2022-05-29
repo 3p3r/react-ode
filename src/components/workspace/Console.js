@@ -66,6 +66,9 @@ export default class Console extends React.Component {
     };
     // XtermJSShell is older than our xterm and needs some patches
     const shell = new XtermJSShell(terminal);
+    shell.command('react-ode', async (shell, args, opts) => {
+      if (opts.v || opts.version) shell.printLine(require('../../../package.json').version);
+    });
     // redirect cash-money's virtual console to xterm (todo: cleanup?)
     logger.on('log', this.handleConsoleData);
     // we hook into where XtermJSShell reads lines and save the last one
