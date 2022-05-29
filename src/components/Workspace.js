@@ -76,7 +76,7 @@ export default class Workspace extends React.Component {
                             </div>
                           </div>
                         </Resizable>
-                        <div className="ode-h-100" style={{ minHeight: '10%' }}>
+                        <div css={styles.h100} style={{ minHeight: '10%' }}>
                           <div css={[styles.wh100, styles.root]}>
                             <div css={[styles.w100, styles.border]} style={{ height: this.props.tabSize }}>
                               <ConsoleTabs />
