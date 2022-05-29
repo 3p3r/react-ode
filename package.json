@@ -75,7 +75,7 @@
     "re-resizable": "^6.9.9",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
-    "react-ode-cash-money": "^1.2.0",
+    "react-ode-cash-money": "^1.2.2",
     "react-resize-detector": "^7.1.1",
     "react-scripts": "5.0.1",
     "storybook-dark-mode": "^1.1.0",

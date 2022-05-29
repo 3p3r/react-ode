@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import assert from 'assert';
+import PropTypes from 'prop-types';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import { WebglAddon } from 'xterm-addon-webgl';
@@ -31,11 +32,21 @@ export default class Console extends React.Component {
     terminal: null,
   };
 
+  static propTypes = {
+    tabSize: PropTypes.number.isRequired,
+    padding: PropTypes.number,
+  };
+
+  static defaultProps = {
+    padding: 5,
+  };
+
   handleConsoleData = (data) => {
     assert.ok(this.state.shell);
     assert.ok(_.isString(data));
     // this api prints into xterm
     this.state.shell.printLine(data);
+    this.refit();
   };
 
   handleConsoleRef = (el) => {
@@ -68,13 +79,19 @@ export default class Console extends React.Component {
     // we hook into XtermJSShell and pass stuff it does not recognize to cash-money
     const run = shell.run.bind(shell);
     shell.run = async (command, args, flags) => {
-      if (!shell.commands.has(command)) {
-        // this is our "busybox" environment
-        await cash(lastLine);
-      } else {
-        // this is everything registered with XtermJSShell's api
-        // documented in node_modules/xterm-js-shell/README.md
-        return await run(command, args, flags);
+      try {
+        // this forwards all commands XtermJSShell does not recognize to our busybox
+        if (command && !shell.commands.has(command)) {
+          // this is our "busybox" environment
+          await cash(lastLine);
+        } else {
+          // this is everything registered with XtermJSShell's api
+          // documented in node_modules/xterm-js-shell/README.md
+          return await run(command, args, flags);
+        }
+      } catch (err) {
+        // if lastLine is empty, user is just hitting enter without commands
+        if (lastLine) shell.printLine(`command "${lastLine}" failed: "${err.message}"`);
       }
     };
     shell.repl();
@@ -116,15 +133,23 @@ export default class Console extends React.Component {
     this.cleanup();
   }
 
+  componentDidMount() {
+    this.refit();
+  }
+
   render() {
-    const padding = 5;
     return (
-      <ReactResizeDetector handleWidth handleHeight onResize={this.refit}>
-        {({ width, height, targetRef }) => (
+      <ReactResizeDetector handleWidth handleHeight skipOnMount={true} onResize={this.refit}>
+        {({ height, targetRef }) => (
           <div ref={targetRef} css={styles}>
             <div
               ref={this.handleConsoleRef}
-              style={{ width: width - padding * 2, height: height - padding * 2, padding }}
+              style={{
+                width: '100%',
+                height: height ? height - this.props.tabSize : '100%',
+                padding: this.props.padding,
+                boxSizing: 'border-box',
+              }}
             ></div>
           </div>
         )}

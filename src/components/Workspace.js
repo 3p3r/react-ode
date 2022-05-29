@@ -82,7 +82,7 @@ export default class Workspace extends React.Component {
                               <ConsoleTabs />
                             </div>
                             <div css={[styles.wh100, styles.border]}>
-                              <Console />
+                              <Console tabSize={this.props.tabSize} />
                             </div>
                           </div>
                         </div>
