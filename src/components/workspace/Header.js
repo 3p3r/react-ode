@@ -18,7 +18,7 @@ export default class Header extends React.Component {
   render() {
     return (
       <Box css={styles} sx={{ bgcolor: 'background.paper' }}>
-        <Tabs>
+        <Tabs value={false}>
           <Tab label="File" />
           <Tab label="Edit" />
           <Tab label="Help" />

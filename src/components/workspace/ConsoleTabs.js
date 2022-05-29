@@ -18,10 +18,7 @@ export default class ConsoleTabs extends React.Component {
   render() {
     return (
       <Box css={styles} sx={{ maxWidth: '100%', bgcolor: 'background.paper' }}>
-        <Tabs>
-          <Tab label="problems" />
-          <Tab label="output" />
-          <Tab label="debug console" />
+        <Tabs value={false}>
           <Tab label="terminal" />
         </Tabs>
       </Box>

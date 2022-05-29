@@ -18,7 +18,7 @@ export default class EditorTabs extends React.Component {
   render() {
     return (
       <Box css={styles} sx={{ maxWidth: '100%', bgcolor: 'background.paper' }}>
-        <Tabs>
+        <Tabs value={false}>
           <Tab label="file.js" />
           <Tab label="file.css" />
           <Tab label="file.py" />
