@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
+import assert from 'assert';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import { WebglAddon } from 'xterm-addon-webgl';
@@ -14,6 +15,7 @@ import 'xterm/css/xterm.css';
 const styles = css`
   width: 100%;
   height: 100%;
+  display: block;
   background: #000;
 
   .xterm .xterm-viewport {
@@ -23,21 +25,38 @@ const styles = css`
 
 export default class Console extends React.Component {
   state = {
+    /** @type {XtermJSShell} */
     shell: null,
+    /** @type {Terminal} */
     terminal: null,
   };
 
+  handleConsoleData = (data) => {
+    assert.ok(this.state.shell);
+    assert.ok(_.isString(data));
+    // this api prints into xterm
+    this.state.shell.printLine(data);
+  };
+
   handleConsoleRef = (el) => {
-    if (!el) return this.setState({ shell: null, terminal: null });
-    const terminal = new Terminal({ cursorBlink: true, scrollback: 0 });
+    if (!el) return this.cleanup();
+    const terminal = new Terminal({ cursorBlink: true });
     // XtermJSShell uses eventemitter api, here we do a conversion
+    terminal.listeners = [];
     terminal.on = (name, ...args) => {
-      terminal[`on${_.capitalize(name)}`](...args);
+      const listener = terminal[`on${_.capitalize(name)}`](...args);
+      terminal.listeners.push(listener);
+    };
+    terminal.off = () => {
+      for (let listener of terminal.listeners) {
+        listener.dispose();
+      }
+      terminal.listeners = [];
     };
     // XtermJSShell is older than our xterm and needs some patches
     const shell = new XtermJSShell(terminal);
     // redirect cash-money's virtual console to xterm (todo: cleanup?)
-    logger.on('log', (data) => shell.printLine(`${data}`));
+    logger.on('log', this.handleConsoleData);
     // we hook into where XtermJSShell reads lines and save the last one
     let lastLine = '';
     const read = shell.echo.read.bind(shell.echo);
@@ -68,7 +87,6 @@ export default class Console extends React.Component {
     webglAddon.onContextLoss((e) => {
       webglAddon.dispose();
     });
-    terminal.write('react-ode $ ');
     fitAddon.activate(terminal);
     terminal.refit = () => fitAddon.fit();
     this.setState({ shell, terminal });
@@ -82,8 +100,24 @@ export default class Console extends React.Component {
     }
   };
 
+  cleanup() {
+    if (this.state.shell) {
+      logger.off('log', this.handleConsoleData);
+      this.state.shell.detach();
+      this.setState({ shell: null });
+    }
+    if (this.state.terminal) {
+      this.state.terminal.dispose();
+      this.setState({ terminal: null });
+    }
+  }
+
+  componentWillUnmount() {
+    this.cleanup();
+  }
+
   render() {
-    const padding = 10;
+    const padding = 5;
     return (
       <ReactResizeDetector handleWidth handleHeight onResize={this.refit}>
         {({ width, height, targetRef }) => (
