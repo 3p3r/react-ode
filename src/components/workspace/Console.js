@@ -8,8 +8,10 @@ import { WebglAddon } from 'xterm-addon-webgl';
 import { WebLinksAddon } from 'xterm-addon-web-links';
 import ReactResizeDetector from 'react-resize-detector';
 import XtermJSShell from 'xterm-js-shell';
-import { cash, console as logger } from 'react-ode-cash-money';
+import { cash, console as logger, fs } from 'react-ode-cash-money';
 import { css } from '@emotion/react';
+import http from 'isomorphic-git/http/web';
+import git from 'isomorphic-git';
 
 import 'xterm/css/xterm.css';
 
@@ -49,6 +51,24 @@ export default class Console extends React.Component {
     this.refit();
   };
 
+  handleGitCommand = async function (unused, { _: [command, ...args], ...opts }) {
+    assert.ok(this.state.shell);
+    try {
+      const result = await git[command](
+        Object.assign({ fs, http, dir: '/', headers: { 'User-Agent': `git/isogit-${git.version()}` } }, opts)
+      );
+      if (result === undefined) return;
+      // detect streams
+      if (typeof result.on === 'function') {
+        throw new Error('not implemented');
+      } else {
+        this.state.shell.printLine(JSON.stringify(result, null, 2));
+      }
+    } catch (err) {
+      this.state.shell.printLine(`Git Error: ${err.message}`);
+    }
+  };
+
   handleConsoleRef = (el) => {
     if (!el) return this.cleanup();
     const terminal = new Terminal({ cursorBlink: true });
@@ -68,6 +88,10 @@ export default class Console extends React.Component {
     const shell = new XtermJSShell(terminal);
     shell.command('react-ode', async (shell, args, opts) => {
       if (opts.v || opts.version) shell.printLine(require('../../../package.json').version);
+    });
+    shell.command('git', async (shell, args, opts) => {
+      // https://github.com/isomorphic-git/isomorphic-git/blob/0a320c69be08e0befbd1345ed1a051c7fe13d409/cli.cjs
+      this.handleGitCommand(args, opts);
     });
     // redirect cash-money's virtual console to xterm (todo: cleanup?)
     logger.on('log', this.handleConsoleData);
