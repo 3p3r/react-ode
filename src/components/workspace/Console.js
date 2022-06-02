@@ -5,7 +5,6 @@ import PropTypes from "prop-types";
 import { Terminal } from "xterm";
 import ReactResizeDetector from "react-resize-detector";
 import XtermJSShell from "xterm-js-shell";
-import { cash, console as logger } from "react-ode-cash-money";
 import { css } from "@emotion/react";
 import * as console from "./console";
 
@@ -66,8 +65,6 @@ export default class Console extends React.Component {
     const shell = new XtermJSShell(terminal);
     // create applications that listen for specific commands
     console.registerApplications(shell);
-    // redirect cash-money's virtual console to xterm (todo: cleanup?)
-    logger.on("log", this.handleConsoleData);
     // we hook into where XtermJSShell reads lines and save the last one
     let lastLine = "";
     const read = shell.echo.read.bind(shell.echo);
@@ -76,15 +73,14 @@ export default class Console extends React.Component {
       lastLine = line;
       return line;
     };
+    // expose the last line as a function of the shell
+    shell.currentLine = () => {
+      return lastLine;
+    };
     // we hook into XtermJSShell and pass stuff it does not recognize to cash-money
     const run = shell.run.bind(shell);
     shell.run = async (command, args, flags) => {
       try {
-        // this forwards all commands XtermJSShell does not recognize to our busybox
-        // if (command && !shell.commands.has(command)) {
-        //   // this is our "busybox" environment
-        //   await cash(lastLine);
-        // } else {
         // this is everything registered with XtermJSShell's api
         // documented in node_modules/xterm-js-shell/README.md
         return await run(command, args, flags);
@@ -110,7 +106,7 @@ export default class Console extends React.Component {
 
   cleanup() {
     if (this.state.shell) {
-      logger.off("log", this.handleConsoleData);
+      delete this.state.shell.currentLine;
       this.state.shell.detach();
       this.setState({ shell: null });
     }

@@ -1,24 +1,23 @@
 // https://github.com/mihneadb/node-directory-tree/blob/1c1d350934698fb9cf8dbab27afb970725ddd7b5/lib/directory-tree.js
 // put memfs into it instead
 
-import { fs as FS } from 'react-ode-cash-money';
-import * as PATH from 'path';
+import { fs as FS } from "memfs";
+import * as PATH from "path";
 
 const constants = {
-  DIRECTORY: 'directory',
-  FILE: 'file'
-}
+  DIRECTORY: "directory",
+  FILE: "file",
+};
 
-function safeReadDirSync (path) {
+function safeReadDirSync(path) {
   let dirData = {};
   try {
     dirData = FS.readdirSync(path);
-  } catch(ex) {
+  } catch (ex) {
     if (ex.code == "EACCES" || ex.code == "EPERM") {
       //User does not have permissions, ignore directory
       return null;
-    }
-    else throw ex;
+    } else throw ex;
   }
   return dirData;
 }
@@ -29,7 +28,7 @@ function safeReadDirSync (path) {
  * @return {string}
  */
 function normalizePath(path) {
-  return path.replace(/\\/g, '/');
+  return path.replace(/\\/g, "/");
 }
 
 /**
@@ -50,11 +49,11 @@ function isRegExp(regExp) {
  * @param  {function} onEachDirectory
  * @return {Object}
  */
-function directoryTree (path, options, onEachFile, onEachDirectory, currentDepth = 0) {
+function directoryTree(path, options, onEachFile, onEachDirectory, currentDepth = 0) {
   options = options || {};
 
-  if (options.depth !== undefined && options.attributes.indexOf('size') !== -1) {
-    throw new Error('usage of size attribute with depth option is prohibited');
+  if (options.depth !== undefined && options.attributes.indexOf("size") !== -1) {
+    throw new Error("usage of size attribute with depth option is prohibited");
   }
 
   const name = PATH.basename(path);
@@ -66,12 +65,13 @@ function directoryTree (path, options, onEachFile, onEachDirectory, currentDepth
   try {
     stats = FS.statSync(path);
     lstat = FS.lstatSync(path);
+  } catch (e) {
+    return null;
   }
-  catch (e) { return null }
 
   // Skip if it matches the exclude regex
   if (options.exclude) {
-    const excludes =  isRegExp(options.exclude) ? [options.exclude] : options.exclude;
+    const excludes = isRegExp(options.exclude) ? [options.exclude] : options.exclude;
     if (excludes.some((exclusion) => exclusion.test(path))) {
       return null;
     }
@@ -80,13 +80,11 @@ function directoryTree (path, options, onEachFile, onEachDirectory, currentDepth
   if (lstat.isSymbolicLink()) {
     item.isSymbolicLink = true;
     // Skip if symbolic links should not be followed
-    if (options.followSymlinks === false)
-      return null;
+    if (options.followSymlinks === false) return null;
     // Initialize the symbolic links array to avoid infinite loops
-    if (!options.symlinks)
-      options = { ...options, symlinks: [] };
+    if (!options.symlinks) options = { ...options, symlinks: [] };
     // Skip if a cyclic symbolic link has been found
-    if (options.symlinks.find(ino => ino === lstat.ino)) {
+    if (options.symlinks.find((ino) => ino === lstat.ino)) {
       return null;
     } else {
       options.symlinks.push(lstat.ino);
@@ -94,21 +92,18 @@ function directoryTree (path, options, onEachFile, onEachDirectory, currentDepth
   }
 
   if (stats.isFile()) {
-
     const ext = PATH.extname(path).toLowerCase();
 
     // Skip if it does not match the extension regex
-    if (options.extensions && !options.extensions.test(ext))
-      return null;
-
+    if (options.extensions && !options.extensions.test(ext)) return null;
 
     if (options.attributes) {
       options.attributes.forEach((attribute) => {
         switch (attribute) {
-          case 'extension':
+          case "extension":
             item.extension = ext;
             break;
-          case 'type':
+          case "type":
             item.type = constants.FILE;
             break;
           default:
@@ -121,33 +116,31 @@ function directoryTree (path, options, onEachFile, onEachDirectory, currentDepth
     if (onEachFile) {
       onEachFile(item, path, stats);
     }
-  }
-  else if (stats.isDirectory()) {
+  } else if (stats.isDirectory()) {
     let dirData = safeReadDirSync(path);
     if (dirData === null) return null;
 
     if (options.depth === undefined || options.depth > currentDepth) {
       item.children = dirData
-          .map(child => directoryTree(PATH.join(path, child), options, onEachFile, onEachDirectory, currentDepth + 1))
-          .filter(e => !!e);
+        .map((child) => directoryTree(PATH.join(path, child), options, onEachFile, onEachDirectory, currentDepth + 1))
+        .filter((e) => !!e);
     }
 
     if (options.attributes) {
       options.attributes.forEach((attribute) => {
         switch (attribute) {
-          case 'size':
+          case "size":
             item.size = item.children.reduce((prev, cur) => prev + cur.size, 0);
             break;
-          case 'type':
+          case "type":
             item.type = constants.DIRECTORY;
             break;
-          case 'extension':
+          case "extension":
             break;
           default:
             item[attribute] = stats[attribute];
             break;
         }
-        
       });
     }
 
