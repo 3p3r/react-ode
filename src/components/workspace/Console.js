@@ -1,19 +1,14 @@
-import _ from 'lodash';
-import React from 'react';
-import assert from 'assert';
-import PropTypes from 'prop-types';
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
-import { WebglAddon } from 'xterm-addon-webgl';
-import { WebLinksAddon } from 'xterm-addon-web-links';
-import ReactResizeDetector from 'react-resize-detector';
-import XtermJSShell from 'xterm-js-shell';
-import { cash, console as logger, fs } from 'react-ode-cash-money';
-import { css } from '@emotion/react';
-import http from 'isomorphic-git/http/web';
-import git from 'isomorphic-git';
+import _ from "lodash";
+import React from "react";
+import assert from "assert";
+import PropTypes from "prop-types";
+import { Terminal } from "xterm";
+import ReactResizeDetector from "react-resize-detector";
+import XtermJSShell from "xterm-js-shell";
+import { css } from "@emotion/react";
+import * as console from "./console";
 
-import 'xterm/css/xterm.css';
+import "xterm/css/xterm.css";
 
 const styles = css`
   width: 100%;
@@ -51,24 +46,6 @@ export default class Console extends React.Component {
     this.refit();
   };
 
-  handleGitCommand = async function (unused, { _: [command, ...args], ...opts }) {
-    assert.ok(this.state.shell);
-    try {
-      const result = await git[command](
-        Object.assign({ fs, http, dir: '/', headers: { 'User-Agent': `git/isogit-${git.version()}` } }, opts)
-      );
-      if (result === undefined) return;
-      // detect streams
-      if (typeof result.on === 'function') {
-        throw new Error('not implemented');
-      } else {
-        this.state.shell.printLine(JSON.stringify(result, null, 2));
-      }
-    } catch (err) {
-      this.state.shell.printLine(`Git Error: ${err.message}`);
-    }
-  };
-
   handleConsoleRef = (el) => {
     if (!el) return this.cleanup();
     const terminal = new Terminal({ cursorBlink: true });
@@ -86,53 +63,36 @@ export default class Console extends React.Component {
     };
     // XtermJSShell is older than our xterm and needs some patches
     const shell = new XtermJSShell(terminal);
-    shell.command('react-ode', async (shell, args, opts) => {
-      if (opts.v || opts.version) shell.printLine(require('../../../package.json').version);
-    });
-    shell.command('git', async (shell, args, opts) => {
-      // https://github.com/isomorphic-git/isomorphic-git/blob/0a320c69be08e0befbd1345ed1a051c7fe13d409/cli.cjs
-      this.handleGitCommand(args, opts);
-    });
-    // redirect cash-money's virtual console to xterm (todo: cleanup?)
-    logger.on('log', this.handleConsoleData);
+    // create applications that listen for specific commands
+    console.registerApplications(shell);
     // we hook into where XtermJSShell reads lines and save the last one
-    let lastLine = '';
+    let lastLine = "";
     const read = shell.echo.read.bind(shell.echo);
     shell.echo.read = async (...args) => {
       const line = await read(...args);
       lastLine = line;
       return line;
     };
+    // expose the last line as a function of the shell
+    shell.currentLine = () => {
+      return lastLine;
+    };
     // we hook into XtermJSShell and pass stuff it does not recognize to cash-money
     const run = shell.run.bind(shell);
     shell.run = async (command, args, flags) => {
       try {
-        // this forwards all commands XtermJSShell does not recognize to our busybox
-        if (command && !shell.commands.has(command)) {
-          // this is our "busybox" environment
-          await cash(lastLine);
-        } else {
-          // this is everything registered with XtermJSShell's api
-          // documented in node_modules/xterm-js-shell/README.md
-          return await run(command, args, flags);
-        }
+        // this is everything registered with XtermJSShell's api
+        // documented in node_modules/xterm-js-shell/README.md
+        return await run(command, args, flags);
+        // }
       } catch (err) {
         // if lastLine is empty, user is just hitting enter without commands
-        if (lastLine) shell.printLine(`command "${lastLine}" failed: "${err.message}"`);
+        if (lastLine) shell.printLine(`command "${lastLine}" not found: "${err.message}"`);
       }
     };
     shell.repl();
     terminal.open(el);
-    terminal.loadAddon(new WebLinksAddon());
-    const fitAddon = new FitAddon();
-    terminal.loadAddon(fitAddon);
-    const webglAddon = new WebglAddon();
-    terminal.loadAddon(webglAddon);
-    webglAddon.onContextLoss((e) => {
-      webglAddon.dispose();
-    });
-    fitAddon.activate(terminal);
-    terminal.refit = () => fitAddon.fit();
+    console.addons.register(terminal);
     this.setState({ shell, terminal });
     this.refit();
   };
@@ -146,7 +106,7 @@ export default class Console extends React.Component {
 
   cleanup() {
     if (this.state.shell) {
-      logger.off('log', this.handleConsoleData);
+      delete this.state.shell.currentLine;
       this.state.shell.detach();
       this.setState({ shell: null });
     }
@@ -172,10 +132,10 @@ export default class Console extends React.Component {
             <div
               ref={this.handleConsoleRef}
               style={{
-                width: '100%',
-                height: height ? height - this.props.tabSize : '100%',
+                width: "100%",
+                height: height ? height - this.props.tabSize : "100%",
                 padding: this.props.padding,
-                boxSizing: 'border-box',
+                boxSizing: "border-box",
               }}
             ></div>
           </div>
