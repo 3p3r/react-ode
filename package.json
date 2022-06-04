@@ -6,6 +6,7 @@
   "scripts": {
     "start": "npm run storybook",
     "build": "webpack --config src/webpack/webpack.config.js",
+    "format": "prettier -w src/*.js src/**/*.js .storybook/*.js",
     "test": "react-scripts test",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
@@ -77,6 +78,7 @@
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
+    "prettier": "^2.6.2",
     "re-resizable": "^6.9.9",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
