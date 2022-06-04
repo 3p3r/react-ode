@@ -1,13 +1,13 @@
-const path = require("path");
-const webpack = require("webpack");
-const CopyPlugin = require("copy-webpack-plugin");
-const nodeExternals = require("webpack-node-externals");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const path = require('path');
+const webpack = require('webpack');
+const CopyPlugin = require('copy-webpack-plugin');
+const nodeExternals = require('webpack-node-externals');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
-  mode: "production",
-  devtool: "source-map",
-  entry: "./src/index.js",
+  mode: 'production',
+  devtool: 'source-map',
+  entry: './src/index.js',
   externals: [nodeExternals()],
   node: {
     os: true,
@@ -20,10 +20,10 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {
-          from: "package.json",
-          to: "package.json",
+          from: 'package.json',
+          to: 'package.json',
           transform(content) {
-            const packageJson = JSON.parse(content.toString("utf8"));
+            const packageJson = JSON.parse(content.toString('utf8'));
             delete packageJson.scripts;
             delete packageJson.eslintConfig;
             delete packageJson.browserslist;
@@ -34,18 +34,18 @@ module.exports = {
       ],
     }),
     new webpack.ProvidePlugin({
-      Buffer: ["buffer", "Buffer"],
-      process: require.resolve("process/browser"),
+      Buffer: ['buffer', 'Buffer'],
+      process: require.resolve('process/browser'),
     }),
   ],
   output: {
-    libraryTarget: "umd",
-    filename: "index.js",
-    path: path.resolve(process.cwd(), "dist"),
+    libraryTarget: 'umd',
+    filename: 'index.js',
+    path: path.resolve(process.cwd(), 'dist'),
   },
   resolve: {
     fallback: {
-      stream: require.resolve("stream-browserify"),
+      stream: require.resolve('stream-browserify'),
     },
   },
   module: {
@@ -54,16 +54,16 @@ module.exports = {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader",
+          loader: 'babel-loader',
           options: {
-            presets: ["@babel/preset-env", "@babel/preset-react"],
-            plugins: ["@babel/plugin-syntax-jsx"],
+            presets: ['@babel/preset-env', '@babel/preset-react'],
+            plugins: ['@babel/plugin-syntax-jsx'],
           },
         },
       },
       {
         test: /\.css$/,
-        use: ["style-loader", "css-loader"],
+        use: ['style-loader', 'css-loader'],
       },
     ],
   },
