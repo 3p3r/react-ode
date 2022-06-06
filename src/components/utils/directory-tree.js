@@ -1,12 +1,12 @@
 // https://github.com/mihneadb/node-directory-tree/blob/1c1d350934698fb9cf8dbab27afb970725ddd7b5/lib/directory-tree.js
 // put memfs into it instead
 
-import { fs as FS } from "memfs";
-import * as PATH from "path";
+import { fs as FS } from 'memfs';
+import * as PATH from 'path';
 
 const constants = {
-  DIRECTORY: "directory",
-  FILE: "file",
+  DIRECTORY: 'directory',
+  FILE: 'file',
 };
 
 function safeReadDirSync(path) {
@@ -14,7 +14,7 @@ function safeReadDirSync(path) {
   try {
     dirData = FS.readdirSync(path);
   } catch (ex) {
-    if (ex.code == "EACCES" || ex.code == "EPERM") {
+    if (ex.code == 'EACCES' || ex.code == 'EPERM') {
       //User does not have permissions, ignore directory
       return null;
     } else throw ex;
@@ -28,7 +28,7 @@ function safeReadDirSync(path) {
  * @return {string}
  */
 function normalizePath(path) {
-  return path.replace(/\\/g, "/");
+  return path.replace(/\\/g, '/');
 }
 
 /**
@@ -37,7 +37,7 @@ function normalizePath(path) {
  * @return {Boolean}
  */
 function isRegExp(regExp) {
-  return typeof regExp === "object" && regExp.constructor == RegExp;
+  return typeof regExp === 'object' && regExp.constructor == RegExp;
 }
 
 /**
@@ -52,8 +52,8 @@ function isRegExp(regExp) {
 function directoryTree(path, options, onEachFile, onEachDirectory, currentDepth = 0) {
   options = options || {};
 
-  if (options.depth !== undefined && options.attributes.indexOf("size") !== -1) {
-    throw new Error("usage of size attribute with depth option is prohibited");
+  if (options.depth !== undefined && options.attributes.indexOf('size') !== -1) {
+    throw new Error('usage of size attribute with depth option is prohibited');
   }
 
   const name = PATH.basename(path);
@@ -100,10 +100,10 @@ function directoryTree(path, options, onEachFile, onEachDirectory, currentDepth 
     if (options.attributes) {
       options.attributes.forEach((attribute) => {
         switch (attribute) {
-          case "extension":
+          case 'extension':
             item.extension = ext;
             break;
-          case "type":
+          case 'type':
             item.type = constants.FILE;
             break;
           default:
@@ -129,13 +129,13 @@ function directoryTree(path, options, onEachFile, onEachDirectory, currentDepth 
     if (options.attributes) {
       options.attributes.forEach((attribute) => {
         switch (attribute) {
-          case "size":
+          case 'size':
             item.size = item.children.reduce((prev, cur) => prev + cur.size, 0);
             break;
-          case "type":
+          case 'type':
             item.type = constants.DIRECTORY;
             break;
-          case "extension":
+          case 'extension':
             break;
           default:
             item[attribute] = stats[attribute];

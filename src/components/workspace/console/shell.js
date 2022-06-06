@@ -1,14 +1,14 @@
-import { createShell } from "shelljs-core";
-import stringArgv from "string-argv";
+import { createShell } from 'shelljs-core';
+import stringArgv from 'string-argv';
 
 export function register(terminal) {
-  const ignore = ["exit", "error", "ShellString", "env", "config"];
+  const ignore = ['exit', 'error', 'ShellString', 'env', 'config'];
   const shelljs = createShell({
-    fs: require("memfs"),
-    os: require("os-browserify/browser"),
-    path: require("path-browserify"),
-    util: require("util/"),
-    process: require("process/browser"),
+    fs: require('memfs'),
+    os: require('os-browserify/browser'),
+    path: require('path-browserify'),
+    util: require('util/'),
+    process: require('process/browser'),
     console,
   });
   Object.keys(shelljs)

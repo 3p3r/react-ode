@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npm run storybook",
     "build": "webpack --config src/webpack/webpack.config.js",
-    "format": "prettier -w src/*.js src/**/*.js .storybook/*.js",
+    "format": "prettier -w src .storybook",
     "test": "react-scripts test",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"

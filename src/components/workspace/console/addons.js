@@ -1,6 +1,6 @@
-import { FitAddon } from "xterm-addon-fit";
-import { WebglAddon } from "xterm-addon-webgl";
-import { WebLinksAddon } from "xterm-addon-web-links";
+import { FitAddon } from 'xterm-addon-fit';
+import { WebglAddon } from 'xterm-addon-webgl';
+import { WebLinksAddon } from 'xterm-addon-web-links';
 
 export function register(terminal) {
   terminal.loadAddon(new WebLinksAddon());
