@@ -1,14 +1,14 @@
-import _ from "lodash";
-import React from "react";
-import assert from "assert";
-import PropTypes from "prop-types";
-import { Terminal } from "xterm";
-import ReactResizeDetector from "react-resize-detector";
-import XtermJSShell from "xterm-js-shell";
-import { css } from "@emotion/react";
-import * as console from "./console";
+import _ from 'lodash';
+import React from 'react';
+import assert from 'assert';
+import PropTypes from 'prop-types';
+import { Terminal } from 'xterm';
+import ReactResizeDetector from 'react-resize-detector';
+import XtermJSShell from 'xterm-js-shell';
+import { css } from '@emotion/react';
+import * as console from './console';
 
-import "xterm/css/xterm.css";
+import 'xterm/css/xterm.css';
 
 const styles = css`
   width: 100%;
@@ -66,7 +66,7 @@ export default class Console extends React.Component {
     // create applications that listen for specific commands
     console.registerApplications(shell);
     // we hook into where XtermJSShell reads lines and save the last one
-    let lastLine = "";
+    let lastLine = '';
     const read = shell.echo.read.bind(shell.echo);
     shell.echo.read = async (...args) => {
       const line = await read(...args);
@@ -132,10 +132,10 @@ export default class Console extends React.Component {
             <div
               ref={this.handleConsoleRef}
               style={{
-                width: "100%",
-                height: height ? height - this.props.tabSize : "100%",
+                width: '100%',
+                height: height ? height - this.props.tabSize : '100%',
                 padding: this.props.padding,
-                boxSizing: "border-box",
+                boxSizing: 'border-box',
               }}
             ></div>
           </div>
