@@ -32,10 +32,12 @@ export default class Console extends React.Component {
   static propTypes = {
     tabSize: PropTypes.number.isRequired,
     padding: PropTypes.number,
+    applications: PropTypes.arrayOf(PropTypes.func),
   };
 
   static defaultProps = {
     padding: 5,
+    applications: [],
   };
 
   handleConsoleData = (data) => {
@@ -65,6 +67,7 @@ export default class Console extends React.Component {
     const shell = new XtermJSShell(terminal);
     // create applications that listen for specific commands
     console.registerApplications(shell);
+    this.props.applications.forEach((application) => application(shell));
     // we hook into where XtermJSShell reads lines and save the last one
     let lastLine = '';
     const read = shell.echo.read.bind(shell.echo);
