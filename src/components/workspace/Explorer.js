@@ -4,7 +4,7 @@ import TreeView from '@mui/lab/TreeView';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import directoryTree from '../utils/directory-tree';
-import fs from 'memfs';
+import { fs } from '../../globals';
 import TreeItem from '@mui/lab/TreeItem';
 import { css } from '@emotion/react';
 
