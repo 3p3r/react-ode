@@ -1,7 +1,7 @@
 // https://github.com/mihneadb/node-directory-tree/blob/1c1d350934698fb9cf8dbab27afb970725ddd7b5/lib/directory-tree.js
 // put memfs into it instead
 
-import { fs as FS } from 'memfs';
+import { fs as FS } from '../../globals';
 import * as PATH from 'path';
 
 const constants = {
@@ -14,7 +14,7 @@ function safeReadDirSync(path) {
   try {
     dirData = FS.readdirSync(path);
   } catch (ex) {
-    if (ex.code == 'EACCES' || ex.code == 'EPERM') {
+    if (ex.code === 'EACCES' || ex.code === 'EPERM') {
       //User does not have permissions, ignore directory
       return null;
     } else throw ex;

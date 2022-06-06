@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { fs } from 'react-ode-cash-money';
+import { fs } from '../../../globals';
 import http from 'isomorphic-git/http/web';
 import git from 'isomorphic-git';
 

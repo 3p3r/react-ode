@@ -1,14 +1,15 @@
 import { createShell } from 'shelljs-core';
 import stringArgv from 'string-argv';
+import globals from '../../../globals';
 
 export function register(terminal) {
   const ignore = ['exit', 'error', 'ShellString', 'env', 'config'];
   const shelljs = createShell({
-    fs: require('memfs'),
-    os: require('os-browserify/browser'),
-    path: require('path-browserify'),
-    util: require('util/'),
-    process: require('process/browser'),
+    fs: globals.fs,
+    os: globals.os,
+    path: globals.path,
+    util: globals.util,
+    process: globals.process,
     console,
   });
   Object.keys(shelljs)
@@ -16,8 +17,13 @@ export function register(terminal) {
     .forEach((cmd) => {
       terminal.command(cmd, async (shell, args, orgOpts) => {
         const argv = stringArgv(terminal.currentLine());
-        const res = shelljs[cmd].apply(null, argv.slice(1));
-        shell.printLine(res.stderr || res.stdout);
+        try {
+          const res = shelljs[cmd].apply(shell, argv.slice(1));
+          shell.printLine(res.stderr || res.stdout);
+        } catch (e) {
+          console.log(e);
+          throw e;
+        }
       });
     });
 }
